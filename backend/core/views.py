@@ -77,10 +77,13 @@ class LogoutView(APIView):
             return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+from rest_framework.parsers import MultiPartParser, FormParser
+
 class UserProfileView(generics.RetrieveUpdateAPIView):
     """User profile endpoint"""
     permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
+    parser_classes = (MultiPartParser, FormParser)
     
     def get_object(self):
         return self.request.user

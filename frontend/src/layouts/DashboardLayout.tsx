@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { authAPI } from '../api/auth';
 import {
     LayoutDashboard,
     Users,
@@ -38,6 +39,7 @@ const DashboardLayout = () => {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
+    const [userProfile, setUserProfile] = useState<any>(null);
 
     const isActive = (path: string) => location.pathname === path;
 
@@ -51,7 +53,23 @@ const DashboardLayout = () => {
     // Get user from localStorage
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
-    const userInitial = user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U';
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const data = await authAPI.getProfile();
+                setUserProfile(data);
+                // Also update localStorage to keep it fresh
+                localStorage.setItem('user', JSON.stringify(data));
+            } catch (error) {
+                console.error('Failed to fetch profile for header:', error);
+            }
+        };
+        fetchProfile();
+    }, []);
+
+    const currentUser = userProfile || user;
+    const userInitial = currentUser?.first_name?.charAt(0) || currentUser?.username?.charAt(0) || 'U';
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -105,8 +123,8 @@ const DashboardLayout = () => {
                                 to={item.path}
                                 onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${active
-                                        ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg shadow-teal-500/30'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg shadow-teal-500/30'
+                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
                                 <Icon className="w-5 h-5" />
@@ -194,15 +212,19 @@ const DashboardLayout = () => {
                                 onClick={() => setProfileOpen(!profileOpen)}
                                 className="flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                             >
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                                    {userInitial}
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden border border-gray-100 dark:border-gray-600">
+                                    {currentUser?.profile_image ? (
+                                        <img src={currentUser.profile_image} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        userInitial
+                                    )}
                                 </div>
                                 <div className="hidden sm:block text-start">
                                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                        {user?.first_name || user?.username || 'User'}
+                                        {currentUser?.first_name || currentUser?.username || 'User'}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {user?.role || 'Staff'}
+                                        {currentUser?.role || 'Staff'}
                                     </p>
                                 </div>
                                 <ChevronDown className="w-4 h-4 text-gray-400" />

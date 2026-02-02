@@ -11,6 +11,7 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.PATIENT)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.username} ({self.role})"

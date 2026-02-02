@@ -48,6 +48,11 @@ export const authAPI = {
         return response.data;
     },
 
+    updateProfile: async (data: FormData | Partial<AuthResponse['user']>) => {
+        const response = await apiClient.patch('/auth/profile/', data);
+        return response.data;
+    },
+
     getProfile: async () => {
         const response = await apiClient.get('/auth/profile/');
         return response.data;

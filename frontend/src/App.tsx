@@ -14,6 +14,8 @@ import RegisterPage from './pages/auth/RegisterPage';
 // Dashboard Pages
 import DashboardPage from './pages/dashboard/DashboardPage';
 
+import ProfilePage from './pages/dashboard/ProfilePage';
+
 // Placeholder pages for other routes
 const PatientsPage = () => <div className="text-gray-900 dark:text-white">Patients Page - Coming Soon</div>;
 const AppointmentsPage = () => <div className="text-gray-900 dark:text-white">Appointments Page - Coming Soon</div>;
@@ -43,6 +45,7 @@ function App() {
                             }
                         >
                             <Route path="/" element={<DashboardPage />} />
+                            <Route path="/profile" element={<ProfilePage />} />
                             <Route path="/patients" element={<PatientsPage />} />
                             <Route path="/appointments" element={<AppointmentsPage />} />
                             <Route path="/prescriptions" element={<PrescriptionsPage />} />
